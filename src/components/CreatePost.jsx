@@ -12,18 +12,35 @@ function CreatePost() {
 
   const HandleOnSubmit = (event) => {
     event.preventDefault();
-    addPost(
-      userIdElement.current.value,
-      titleElement.current.value,
-      bodyElement.current.value,
-      reactionsElement.current.value,
-      tagsElement.current.value.split(" ")
-    );
+
+    const userId = userIdElement.current.value;
+    const title = titleElement.current.value;
+    const body = bodyElement.current.value;
+    const reactions = { likes: reactionsElement.current.value };
+    const tags = tagsElement.current.value.split(" ");
+
     userIdElement.current.value = "";
     titleElement.current.value = "";
     bodyElement.current.value = "";
     reactionsElement.current.value = "";
     tagsElement.current.value = "";
+
+    fetch("https://dummyjson.com/posts/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+        title: title,
+        body: body,
+        reactions: reactions,
+        tags: tags,
+      }),
+    })
+      .then((res) => res.json())
+      .then((post) => {
+        console.log(post);
+        addPost(post);
+      });
   };
 
   return (

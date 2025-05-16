@@ -1,15 +1,21 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Post from "./Post";
 import { AppContext } from "../store/post-list-store";
+import WelcomeMessage from "./WelcomeMessage";
+import LoadingState from "./LoadingState";
 
 function PostList() {
-  const { postList } = useContext(AppContext);
+  const { postList, fetching } = useContext(AppContext);
 
   return (
     <>
-      {postList.map((post) => (
-        <Post key={post.id} post={post}></Post>
-      ))}
+      {fetching && <LoadingState></LoadingState>}
+      {!fetching && postList.length === 0 && <WelcomeMessage></WelcomeMessage>}
+      {!fetching &&
+        postList.map((post) => (
+          //console.log(post)
+          <Post key={post.id} post={post}></Post>
+        ))}
     </>
   );
 }

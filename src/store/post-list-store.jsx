@@ -1,9 +1,10 @@
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useState, useEffect } from "react";
 import PostList from "../components/Postlist";
 
 export const AppContext = createContext({
   postList: [],
   addPost: () => {},
+  fetching: false,
   deletePost: () => {},
 });
 const postListReducer = (currentPostList, action) => {
@@ -14,32 +15,18 @@ const postListReducer = (currentPostList, action) => {
     );
   } else if (action.type == "ADDPOST") {
     newPostList = [action.payload, ...currentPostList];
+  } else if (action.type == "GETALLPOSTS") {
+    newPostList = action.payload.posts;
   }
   return newPostList;
 };
 
 const PostListProvider = ({ children }) => {
-  const [postList, dispatchPostList] = useReducer(
-    postListReducer,
-    Default_Post_List
-  );
-  const addPost = (
-    userIdElement,
-    titleElement,
-    bodyElement,
-    reactionsElement,
-    tagsElement
-  ) => {
+  const [postList, dispatchPostList] = useReducer(postListReducer, []);
+  const addPost = (Post) => {
     dispatchPostList({
       type: "ADDPOST",
-      payload: {
-        id: Date.now(),
-        userId: userIdElement,
-        title: titleElement,
-        body: bodyElement,
-        reactions: reactionsElement,
-        tags: tagsElement,
-      },
+      payload: Post,
     });
   };
   const deletePost = (postid) => {
@@ -48,29 +35,36 @@ const PostListProvider = ({ children }) => {
       payload: { postId: postid },
     });
   };
+
+  const getInitialPosts = (posts) => {
+    dispatchPostList({
+      type: "GETALLPOSTS",
+      payload: { posts },
+    });
+  };
+  const [fetching, setfetching] = useState(false);
+  useEffect(() => {
+    setfetching(true);
+    const controller = new AbortController();
+    const signal = controller.signal;
+    fetch("https://dummyjson.com/posts", { signal })
+      .then((res) => res.json())
+      .then((data) => {
+        getInitialPosts(data.posts);
+        setfetching(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   return (
-    <AppContext.Provider value={{ postList, addPost, deletePost }}>
+    <AppContext.Provider
+      value={{ postList, addPost, fetching, deletePost, getInitialPosts }}
+    >
       {children}
     </AppContext.Provider>
   );
 };
 export default PostListProvider;
-
-const Default_Post_List = [
-  {
-    id: "1",
-    title: " Going to mumbai",
-    body: "whatsup guts",
-    reactions: 2,
-    userId: "user-3",
-    tags: ["vacations", "Mumbai", "Enjoying"],
-  },
-  {
-    id: "2",
-    title: " Going to delhii",
-    body: "whatsup delhi guts",
-    reactions: 6,
-    userId: "user-2",
-    tags: ["vacations", "Delhi", "Enjoying"],
-  },
-];
