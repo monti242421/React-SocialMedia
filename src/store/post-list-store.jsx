@@ -4,7 +4,6 @@ import PostList from "../components/Postlist";
 export const AppContext = createContext({
   postList: [],
   addPost: () => {},
-  fetching: false,
   deletePost: () => {},
 });
 const postListReducer = (currentPostList, action) => {
@@ -42,26 +41,10 @@ const PostListProvider = ({ children }) => {
       payload: { posts },
     });
   };
-  const [fetching, setfetching] = useState(false);
-  useEffect(() => {
-    setfetching(true);
-    const controller = new AbortController();
-    const signal = controller.signal;
-    fetch("https://dummyjson.com/posts", { signal })
-      .then((res) => res.json())
-      .then((data) => {
-        getInitialPosts(data.posts);
-        setfetching(false);
-      });
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
 
   return (
     <AppContext.Provider
-      value={{ postList, addPost, fetching, deletePost, getInitialPosts }}
+      value={{ postList, addPost, deletePost, getInitialPosts }}
     >
       {children}
     </AppContext.Provider>

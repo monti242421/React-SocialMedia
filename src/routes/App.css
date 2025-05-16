@@ -1,0 +1,19 @@
+.postcard {
+  margin-top: 15px;
+  margin-left: 10px;
+}
+.tags {
+  margin: 3px;
+}
+.reactions {
+  margin-top: 15px;
+}
+.createPost {
+  margin: 20px;
+}
+.welcomeMessage {
+  margin: 100px 0px;
+}
+.spinner {
+  margin: 100px;
+}
